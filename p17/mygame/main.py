@@ -16,7 +16,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
 
-class Bullet:
+class Bullet: 
     bullet = None
 
 
@@ -128,6 +128,7 @@ class Background:
 
         screen.blit(self.bg_surface, (self.x, self.y))
 
+
 class Menu:
     def __init__(self):
         bg_img = pygame.image.load(IMAGES_MENU_PATH + 'bg-01.jpg')
@@ -146,7 +147,7 @@ class Menu:
 
         font = pygame.font.SysFont(FONTS_PATH + 'PoetsenOne-Regular.ttf', 40)
         text = font.render('START', True, color)
-        screen.blit(text, (280, 140)) # 370 160
+        screen.blit(text, (280, 140))  # 370 160
 
         font = pygame.font.SysFont('Arial', 14)
         text = font.render('or press key - s', True, 'black')
@@ -154,7 +155,7 @@ class Menu:
 
     def draw(self):
         screen.blit(self.bg_img, (0, 0))
-        screen.blit(self.box_img, (SCREEN_WIDTH/2-self.box_img.get_width()/2, SCREEN_HEIGHT/2-self.box_img.get_height()/2))
+        screen.blit(self.box_img, (SCREEN_WIDTH/2-self.box_img.get_width()/2, SCREEN_HEIGHT/2 - self.box_img.get_height() / 2))
         self.start_btn()
         self.start_pos()
 
@@ -178,19 +179,54 @@ class Enemy:
     y: int = 0
     speed: int = 0
     image = None
+    width: int = 0
+
+    def __init__(self, image):
+        self.image = image  # передаємо обєкт зображення
+        self.width = self.image.get_width()
+        self.x = random.randint(0, SCREEN_WIDTH - self.width)
+        self.speed = random.randint(3, 7)
+
+    def show(self):
+        screen.blit(self.image, (self.x, self.y))
 
     def add(self):
         pass
 
     def move(self):
-        pass
+        self.y += self.speed
 
     def fire(self):
         pass
 
 
 class Enemies:
-    pass
+    images: list = []
+    enemies_list: list = []
+
+    def __init__(self):
+        self.load_images()
+
+    def load_images(self):
+        for i in range(9):
+            # n = random.randint(0, 9)
+            self.images.append(pygame.image.load(IMAGES_PATH + f'ship_000{i}.png'))
+
+    def add(self):
+        im = self.images[random.randint(0, len(self.images) - 1)]
+        en = Enemy(im)
+        self.enemies_list.append(en)
+
+    def draw(self):
+        for item in self.enemies_list:
+            item.show()
+
+    def fall(self):
+        for item in self.enemies_list:
+            item.fall()
+
+    def delete(self):
+        pass
 
 
 class Game:
@@ -201,6 +237,7 @@ class Game:
         self.player = Player()
         self.bg_game = Background()
         self.menu = Menu()
+        self.enemies = Enemies()
 
         self.dt = 1
         self.interval = time.time()
@@ -227,6 +264,7 @@ class Game:
                         self.run()
 
             self.menu.draw()
+
             pygame.display.update()
 
     def run(self):
@@ -257,6 +295,9 @@ class Game:
                 self.bg_game.draw_background()
                 self.player.move()
                 self.player.draw()
+
+                self.enemies.draw()
+                self.enemies.fall()
 
                 pygame.display.update()
 
